@@ -3,3 +3,8 @@ print(2.3)
 print(True)
 print(False)
 print("python")
+
+int()
+float()
+str()
+bool()
