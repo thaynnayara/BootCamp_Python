@@ -1,57 +1,72 @@
-# armazenar depósitos e saques
+from datetime import datetime
+import pytz
+
+# Armazenar depósitos, saques e saldo
 depositos = []
 saques = []
 saldo = 0.0
 
-#Operação depósito
+# Limite de transações diárias
+transacoes_diarias = 10
+saque_realizado = 0 #podendo chegar somente em 3, havendo incremento a cada operação
+data = datetime.now(pytz.timezone("America/Sao_Paulo"))
 
+# Função para depositar dinheiro
 def depositar(valor):
-    global saldo
+    global saldo, transacoes_diarias
+
+    if transacoes_diarias <= 0:
+        print("Limite de transações diárias atingido. Volte amanhã!")
+        return
+
     if valor > 0:
         depositos.append(valor)
         saldo += valor
+        transacoes_diarias -= 1
         print(f'Depósito de R$ {valor:.2f} realizado com sucesso!')
     else:
-        print("não foi possivel depositar, tente novamente!")
+        print("Não foi possível depositar. O valor deve ser maior que zero.")
 
-
-#Operação de saque conferir se não ultrapassou de 3 no dia, impor o limite de R$ 500,00 e se há saldo sufiviente.
-
-saque_realizado = 0
-
+# Função para sacar dinheiro
 def sacar(valor):
-    global saldo, saque_realizado
-    if saque_realizado < 3:
-        if valor <= 500:
-            if saldo >= valor:
+    global saldo, saque_realizado, transacoes_diarias
+
+    if transacoes_diarias <= 0:
+        print("Limite de transações diárias atingido. Volte amanhã!")
+        return
+
+    if saque_realizado < 3: 
+        if valor <= 500:  
+            if saldo >= valor:  
                 saques.append(valor)
                 saldo -= valor
                 saque_realizado += 1
+                transacoes_diarias -= 1
                 print(f'Saque de R$ {valor:.2f} realizado com sucesso!')
             else:
-                print('Não foi possivel sacar dinheiro por falta de saldo.')
+                print('Não foi possível sacar. Saldo insuficiente.')
         else:
-            print('O valor do saque não pode ser maior que R$500,00.')
+            print('O valor do saque não pode ser maior que R$ 500,00.')
     else:
-        print('Você já atingiu o maximo de saques por dia, volte amanhã!')
+        print('Você já atingiu o limite máximo de saques por dia. Volte amanhã!')
 
-#Operação extrato
-
+# Função para exibir o extrato
 def extrato():
     print('\n ------- EXTRATO -------')
+    
     if not depositos and not saques:
         print('Não há movimentações!')
+    
     else:
         for deposito in depositos:
-            print(f'DEPÓSITO: R$ {deposito:.2f}')
-        for saque in saques:
-            print(f'Saque: R$ {saque:.2f}')
-    print(f'Salso atual: R$ {saldo:.2f}')
+            print(f'DEPÓSITO: R$ {deposito:.2f} - Data/Hora: {deposito[1].strftime("%d/%m/%Y %h:%m:%s")}')
+        
+        for saque in saques:        
+            print(f'SAQUE: R$ {saque:.2f} - Data/Hora: {saque[1].strftime("%d/%m/%Y %h:%m:%s")}')
 
+    print(f'Saldo atual: R$ {saldo:.2f}')
 
-
-#Escolha do ususario da operação:
-
+# Função para exibir o menu e interagir com o usuário
 def menu():
     while True:
         print('\n--- MENU ---')
